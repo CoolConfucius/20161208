@@ -24,6 +24,10 @@ myAppModule.factory('productFactory', function (){
       products.push(callback()); 
     }
 
+    factory.deleteProduct = function(callback){
+      products.splice(callback(), 1); 
+    }
+
     factory.log = function(callback){
       console.log("factory log", products);
       callback(products); 
@@ -53,16 +57,18 @@ myAppModule.controller('studentsController', ['$scope', 'productFactory', functi
     }
     newproduct(); 
     $scope.addproduct = function(){
-      $scope.products.push($scope.newproduct);
-      productFactory.addProduct(function(data){
-        // data.push($scope.newproduct);
+      // $scope.products.push($scope.newproduct);
+      productFactory.addProduct(function(){
         return $scope.newproduct; 
       })
       newproduct();
     }
     $scope.deleteproduct = function(index){
       console.log(index);
-      $scope.products.splice(index, 1); 
+      // $scope.products.splice(index, 1); 
+      productFactory.deleteProduct(function(data){
+        return index; 
+      })
     }
 
     $scope.log = function(){
@@ -77,7 +83,7 @@ myAppModule.controller('studentsController', ['$scope', 'productFactory', functi
 </head>
 <body ng-app='myApp'>
     <div ng-controller = "studentsController">      
-      <button ng-click="log()">Log Products</button>
+      <button ng-click="log()">Log Products</button><br>
       Product Name: <input type="text" ng-model="newproduct.name"><br>
       Product Price: <input type="number" ng-model="newproduct.price">
       <button ng-click="addproduct()">Add Product</button>
