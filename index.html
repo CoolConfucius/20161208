@@ -8,45 +8,73 @@ var myAppModule = angular.module('myApp', []);
 // Create a factory (attached to this module)
 myAppModule.factory('studentFactory', function (){
     // The factory is nothing more than a function that returns an object
-    var students = [
-        {name: 'Mike', age: 34},
-        {name: 'John', age: 24},
-        {name: 'Trey', age: 24}];
+    var products = [
+        {name: 'Mike', price: 34},
+        {name: 'John', price: 24},
+        {name: 'Trey', price: 24}];
     var factory = {};
-    // Add a getStudents key to the factory object with a value of a function.
-    factory.getStudents = function (callback){
-        // Pass the students to a callback to be used by whoever calls the method
-        callback(students);
+    // Add a getProducts key to the factory object with a value of a function.
+    factory.getProducts = function (callback){
+        // Pass the products to a callback to be used by whoever calls the method
+        callback(products);
     }
     // Most important step: return the object so it can be used by the rest of our angular code
+
+    
+
+
+
     return factory;
 });
 
 
 // Create a controller (attached to this module), and inject the studentFactory in it.
 myAppModule.controller('studentsController', ['$scope', 'studentFactory', function ($scope, studentFactory){
-    //  initialize an empty array so $scope.students maintains a consistent data type
-    $scope.students = [];
-    // run the getStudents method and set $scope data in the callback
-    studentFactory.getStudents(function (data){
-        $scope.students = data;
+    //  initialize an empty array so $scope.products maintains a consistent data type
+    $scope.products = [];
+    // run the getProducts method and set $scope data in the callback
+    studentFactory.getProducts(function (data){
+        $scope.products = data;
     })
+
+    function newproduct(){
+      $scope.newproduct = {
+        firstname: "",
+        lastname: "", 
+        favoritelanguage: ""
+      };
+    }
+    newproduct(); 
+    $scope.addproduct = function(){
+      $scope.products.push($scope.newproduct);
+      newproduct();
+    }
+    $scope.deleteproduct = function(index){
+      console.log(index);
+      $scope.products.splice(index, 1); 
+    }
+
 }])
   </script>
 </head>
 <body ng-app='myApp'>
-    <div ng-controller = "studentsController">
+    <div ng-controller = "studentsController">      
+      Product Name: <input type="text" ng-model="newproduct.name"><br>
+      Product Price: <input type="number" ng-model="newproduct.price">
+      <button ng-click="addproduct()">Add Product</button>
       <table>
         <thead>
           <th>#</th>
           <th>Name</th>
-          <th>Age</th>
+          <th>Price</th>
+          <th>Action</th>
         </thead>
         <tbody>
-          <tr ng-repeat="student in students track by $index">
+          <tr ng-repeat="product in products track by $index">
             <td>{{$index}}</td>
-            <td>{{student.name}}</td>
-            <td>{{student.age}}</td>
+            <td>{{product.name}}</td>
+            <td>{{product.price}}</td>
+            <td><button ng-click="deleteproduct($index)">Delete Product</button></td>
           </tr>
         </tbody>
       </table>
