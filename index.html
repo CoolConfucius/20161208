@@ -21,7 +21,7 @@ myAppModule.factory('productFactory', function (){
     // Most important step: return the object so it can be used by the rest of our angular code
 
     factory.addProduct = function(callback){
-      product.push(callback()); 
+      products.push(callback()); 
     }
 
     factory.log = function(callback){
