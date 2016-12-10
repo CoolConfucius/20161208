@@ -9,9 +9,9 @@ var myAppModule = angular.module('myApp', []);
 myAppModule.factory('productFactory', function (){
     // The factory is nothing more than a function that returns an object
     var products = [
-        {name: 'Mike', price: 34, quantity: 3},
-        {name: 'John', price: 24, quantity: 3},
-        {name: 'Trey', price: 24, quantity: 3}];
+        {name: 'Mike', price: 34, quantity: 50},
+        {name: 'John', price: 24, quantity: 50},
+        {name: 'Trey', price: 24, quantity: 50}];
     var factory = {};
     // Add a getProducts key to the factory object with a value of a function.
     factory.getProducts = function (callback){
@@ -23,6 +23,7 @@ myAppModule.factory('productFactory', function (){
 
     factory.addProduct = function(newproduct, callback){
       // products.push(callback()); 
+      newproduct.quantity = 50; 
       products.push(newproduct); 
       callback();
     }
@@ -101,14 +102,19 @@ myAppModule.controller('ordersController', ['$scope', 'productFactory', function
       $scope.products = data;
   })
   $scope.buyproduct = function(index){
-      console.log(index);
-      // $scope.products.splice(index, 1); 
-      productFactory.buyProduct(index, function(data){
-        productFactory.getProducts(function (data){
-            $scope.products = data;
-        })
+    console.log(index);
+    // $scope.products.splice(index, 1); 
+    productFactory.buyProduct(index, function(data){
+      productFactory.getProducts(function (data){
+          $scope.products = data;
       })
-    }
+    })
+  }
+  $scope.refresh = function(){
+    productFactory.getProducts(function (data){
+      $scope.products = data;
+    })
+  }
 }])
   </script>
 </head>
@@ -135,8 +141,9 @@ myAppModule.controller('ordersController', ['$scope', 'productFactory', function
       </tbody>
     </table>
   </div>
+  <hr>
   <div ng-controller = "ordersController">      
-    <button ng-click="log()">Log Products</button><br>
+    <button ng-click="refresh()">Refresh</button><br>
     <table>
       <thead>
         <th>#</th>
