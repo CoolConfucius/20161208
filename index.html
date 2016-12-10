@@ -9,23 +9,32 @@ var myAppModule = angular.module('myApp', []);
 myAppModule.factory('productFactory', function (){
     // The factory is nothing more than a function that returns an object
     var products = [
-        {name: 'Mike', price: 34},
-        {name: 'John', price: 24},
-        {name: 'Trey', price: 24}];
+        {name: 'Mike', price: 34, quantity: 3},
+        {name: 'John', price: 24, quantity: 3},
+        {name: 'Trey', price: 24, quantity: 3}];
     var factory = {};
     // Add a getProducts key to the factory object with a value of a function.
     factory.getProducts = function (callback){
         // Pass the products to a callback to be used by whoever calls the method
-        callback(products);
+        // callback(products);
+        callback(products.slice(0));
     }
     // Most important step: return the object so it can be used by the rest of our angular code
 
-    factory.addProduct = function(callback){
-      products.push(callback()); 
+    factory.addProduct = function(newproduct, callback){
+      // products.push(callback()); 
+      products.push(newproduct); 
+      callback();
     }
 
-    factory.deleteProduct = function(callback){
-      products.splice(callback(), 1); 
+    factory.deleteProduct = function(i, callback){
+      products.splice(i, 1); 
+      callback();
+    }
+
+    factory.buyProduct = function(i, callback){
+      products[i].quantity--;
+      callback();
     }
 
     factory.log = function(callback){
@@ -35,12 +44,13 @@ myAppModule.factory('productFactory', function (){
 
 
 
+
     return factory;
 });
 
 
 // Create a controller (attached to this module), and inject the productFactory in it.
-myAppModule.controller('studentsController', ['$scope', 'productFactory', function ($scope, productFactory){
+myAppModule.controller('productsController', ['$scope', 'productFactory', function ($scope, productFactory){
     //  initialize an empty array so $scope.products maintains a consistent data type
     $scope.products = [];
     // run the getProducts method and set $scope data in the callback
@@ -58,16 +68,21 @@ myAppModule.controller('studentsController', ['$scope', 'productFactory', functi
     newproduct(); 
     $scope.addproduct = function(){
       // $scope.products.push($scope.newproduct);
-      productFactory.addProduct(function(){
-        return $scope.newproduct; 
+      productFactory.addProduct($scope.newproduct, function(data){
+        productFactory.getProducts(function (data){
+            $scope.products = data;
+        })
+        // return $scope.newproduct; 
       })
       newproduct();
     }
     $scope.deleteproduct = function(index){
       console.log(index);
       // $scope.products.splice(index, 1); 
-      productFactory.deleteProduct(function(data){
-        return index; 
+      productFactory.deleteProduct(index, function(data){
+        productFactory.getProducts(function (data){
+            $scope.products = data;
+        })
       })
     }
 
@@ -79,30 +94,67 @@ myAppModule.controller('studentsController', ['$scope', 'productFactory', functi
     }
 
 }])
+
+myAppModule.controller('ordersController', ['$scope', 'productFactory', function($scope, productFactory){
+  $scope.products = [];
+  productFactory.getProducts(function (data){
+      $scope.products = data;
+  })
+  $scope.buyproduct = function(index){
+      console.log(index);
+      // $scope.products.splice(index, 1); 
+      productFactory.buyProduct(index, function(data){
+        productFactory.getProducts(function (data){
+            $scope.products = data;
+        })
+      })
+    }
+}])
   </script>
 </head>
 <body ng-app='myApp'>
-    <div ng-controller = "studentsController">      
-      <button ng-click="log()">Log Products</button><br>
-      Product Name: <input type="text" ng-model="newproduct.name"><br>
-      Product Price: <input type="number" ng-model="newproduct.price">
-      <button ng-click="addproduct()">Add Product</button>
-      <table>
-        <thead>
-          <th>#</th>
-          <th>Name</th>
-          <th>Price</th>
-          <th>Action</th>
-        </thead>
-        <tbody>
-          <tr ng-repeat="product in products track by $index">
-            <td>{{$index}}</td>
-            <td>{{product.name}}</td>
-            <td>{{product.price}}</td>
-            <td><button ng-click="deleteproduct($index)">Delete Product</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div ng-controller = "productsController">      
+    <button ng-click="log()">Log Products</button><br>
+    Product Name: <input type="text" ng-model="newproduct.name"><br>
+    Product Price: <input type="number" ng-model="newproduct.price">
+    <button ng-click="addproduct()">Add Product</button>
+    <table>
+      <thead>
+        <th>#</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Action</th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="product in products track by $index">
+          <td>{{$index}}</td>
+          <td>{{product.name}}</td>
+          <td>{{product.price}}</td>
+          <td><button ng-click="deleteproduct($index)">Delete Product</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div ng-controller = "ordersController">      
+    <button ng-click="log()">Log Products</button><br>
+    <table>
+      <thead>
+        <th>#</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Qty Available</th>
+        <th>Action</th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="product in products track by $index">
+          <td>{{$index}}</td>
+          <td>{{product.name}}</td>
+          <td>{{product.price}}</td>
+          <td>{{product.quantity}}</td>
+          <td><button ng-show="product.quantity > 0" ng-click="buyproduct($index)">Buy</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>
